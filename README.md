@@ -12,7 +12,6 @@ A multi-modal deep learning classifier for automating the interpretation of gene
 - [Feature Engineering](#feature-engineering)
 - [Model Architecture](#model-architecture)
 - [Results](#results)
-- [Design Patterns](#design-patterns)
 - [Architecture Decisions](#architecture-decisions)
 - [API Contracts](#api-contracts)
 - [Setup & Usage](#setup--usage)
@@ -183,19 +182,6 @@ Training accuracy improves steadily while validation accuracy plateaus around 34
 
 ---
 
-## Design Patterns
-
-| Pattern | Application in This Project |
-|---|---|
-| **Pipeline Pattern** | Sequential stages: load → clean → featurize → encode → train → evaluate. Each stage has a well-defined input/output contract. |
-| **Strategy Pattern** | The three feature extractors (Doc2Vec, Gene SVD, Variation SVD) are interchangeable strategies behind a common interface: take raw data, return a float matrix. |
-| **Caching Pattern** | `docEmbeddings.d2v` is persisted to disk. On subsequent runs, the model is loaded rather than retrained, making the pipeline idempotent and fast. |
-| **Template Method** | `textClean()` defines the skeleton of the preprocessing algorithm (regex → lowercase → stopwords); `cleanup()` extends it by adding punctuation removal. |
-| **Feature Fusion / Late Fusion** | Each modality is encoded independently, then fused at the last step via `np.hstack` before the neural network. This decouples feature engineering from model training. |
-| **Facade Pattern** | The single notebook exposes a simple run-top-to-bottom interface that hides the complexity of gensim, sklearn, and Keras internals. |
-
----
-
 ## Architecture Decisions
 
 ### ADR-1: Doc2Vec for Text Representation
@@ -280,8 +266,10 @@ def constructLabeledSentences(data: pd.Series) -> list[TaggedDocument]:
 git clone https://github.com/skushal746/CIS-6930-ML-in-Genomics.git
 cd CIS-6930-ML-in-Genomics
 
-pip install pandas numpy matplotlib seaborn nltk gensim scikit-learn keras tensorflow tqdm
-python -m nltk.downloader stopwords
+sh setup_env.sh
+python3 bring_dataset.py
+
+
 ```
 
 ### Data
